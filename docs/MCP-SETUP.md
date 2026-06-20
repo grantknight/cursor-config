@@ -37,6 +37,8 @@ That is expected: Cursor steals the one-time auth code via `cursor://` redirect;
 
 Optional: `CLOUDFLARE_ACCOUNT_ID` in User env vars (helps agents; not required in mcp.json).
 
+**Health check:** `scripts/test-cloudflare-mcp.ps1` — lists zones (pass). Zone-scoped DNS tokens often return **401** on `/user/tokens/verify`; that is normal and does not mean MCP is broken.
+
 ## Node.js required
 
 Railway and Playwright MCP run via `npx`/`railway` CLI. If MCP shows red for those servers, install Node LTS and ensure `node` and `npx` are on your **user PATH** (new terminal: `node -v`).
