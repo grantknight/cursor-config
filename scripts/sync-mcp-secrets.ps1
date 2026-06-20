@@ -9,4 +9,4 @@ if (-not $gt) { throw 'GITHUB_TOKEN missing in User env vars' }
   "RAILWAY_API_TOKEN=$rt"
   "GITHUB_TOKEN=$gt"
 ) | Set-Content -Path $secretsPath -Encoding UTF8
-Write-Host "Updated $secretsPath — restart Cursor to reload Railway MCP."
+Write-Host "Updated $secretsPath - restart Cursor to reload Railway MCP."

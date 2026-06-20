@@ -1,0 +1,19 @@
+---
+description: Check knight-hq-registry before DNS, Railway, or subdomain changes
+globs:
+alwaysApply: false
+---
+
+# Check registry before infrastructure changes
+
+Before creating or modifying **DNS records**, **Railway custom domains**, **new subdomains**, or **shared integrations**:
+
+1. Read `grantknight/knight-hq-registry` (local: `~/Desktop/Projects/knight-hq-registry`)
+2. Check `registry/domains.yaml` for used vs available hosts
+3. Check `registry/railway.yaml` for the target project and service
+4. Check `registry/integrations.yaml` for zone IDs and Telegram topic IDs
+5. Update the registry after the change is verified
+
+Use skill **use-knight-hq-registry** for file paths and workflow.
+
+Never commit secrets into the registry — pointers and public IDs only.

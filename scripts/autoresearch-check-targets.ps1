@@ -35,9 +35,22 @@ if ($lines.Count -lt 1) {
   exit 1
 }
 
-$last = ($lines | Select-Object -Last 1) -split "`t"
+$keepLines = @()
+foreach ($line in $lines) {
+  $cols = $line -split "`t"
+  if ($cols.Count -ge 3 -and $cols[2] -eq 'KEEP') {
+    $keepLines += ,$line
+  }
+}
+
+if ($keepLines.Count -lt 1) {
+  Write-Host 'CHECK: FAIL (no KEEP rows in results.tsv)'
+  exit 1
+}
+
+$last = ($keepLines | Select-Object -Last 1) -split "`t"
 if ($last.Count -lt 2) {
-  Write-Host 'CHECK: FAIL (results.tsv row malformed)'
+  Write-Host 'CHECK: FAIL (KEEP row malformed)'
   exit 1
 }
 
@@ -50,5 +63,5 @@ foreach ($prop in $targets.PSObject.Properties) {
   }
 }
 
-Write-Host 'CHECK: PASS (all targets within budget)'
+Write-Host 'CHECK: PASS (all targets within budget on last KEEP row)'
 exit 0

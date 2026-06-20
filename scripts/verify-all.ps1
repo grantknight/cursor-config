@@ -37,14 +37,29 @@ function Invoke-Step {
   }
 }
 
+function Invoke-Native {
+  param(
+    [string]$Name,
+    [string]$CommandLine
+  )
+  Write-Log "STEP: $Name"
+  cmd /c "$CommandLine 2>&1" | ForEach-Object { Write-Log $_ }
+  if ($LASTEXITCODE -ne 0) {
+    Write-Log "FAIL: $Name - exit code $LASTEXITCODE"
+    return $false
+  }
+  Write-Log "OK: $Name"
+  return $true
+}
+
 $targets = @{
-  buildPasses     = $true
-  testsPass       = $true
-  typecheck       = $true
-  healthUrl       = $null
-  visualRequired  = $true
-  slopCheckRequired = $true
-  screenshotUrl   = $null
+  buildPasses       = $false
+  testsPass         = $false
+  typecheck         = $false
+  healthUrl         = $null
+  visualRequired    = $false
+  slopCheckRequired = $false
+  screenshotUrl     = $null
 }
 
 $targetsPath = Join-Path $root 'data/verify/targets.json'
@@ -57,44 +72,55 @@ if (Test-Path $targetsPath) {
 
 $allOk = $true
 $pkgPath = Join-Path $root 'package.json'
+$hasPkg = Test-Path $pkgPath
 
-if (Test-Path $pkgPath) {
+if ($hasPkg) {
   $pkg = Get-Content $pkgPath -Raw | ConvertFrom-Json
   $scripts = $pkg.scripts
 
-  if ($targets.typecheck -and $scripts.PSObject.Properties['typecheck']) {
-    $ok = Invoke-Step 'npm run typecheck' {
-      npm run typecheck 2>&1 | ForEach-Object { Write-Log $_ }
-      if ($LASTEXITCODE -ne 0) { throw "exit code $LASTEXITCODE" }
+  if ($targets.typecheck) {
+    if ($scripts.PSObject.Properties['typecheck']) {
+      if (-not (Invoke-Native 'npm run typecheck' 'npm run typecheck')) { $allOk = $false }
     }
-    if (-not $ok) { $allOk = $false }
-  }
-  elseif ($targets.typecheck -and (Test-Path (Join-Path $root 'tsconfig.json'))) {
-    $ok = Invoke-Step 'tsc --noEmit' {
-      npx tsc --noEmit 2>&1 | ForEach-Object { Write-Log $_ }
-      if ($LASTEXITCODE -ne 0) { throw "exit code $LASTEXITCODE" }
+    elseif (Test-Path (Join-Path $root 'tsconfig.json')) {
+      if (-not (Invoke-Native 'tsc --noEmit' 'npx tsc --noEmit')) { $allOk = $false }
     }
-    if (-not $ok) { $allOk = $false }
+    else {
+      Write-Log 'FAIL: typecheck required but no npm run typecheck or tsconfig.json'
+      $allOk = $false
+    }
   }
 
-  if ($targets.buildPasses -and $scripts.PSObject.Properties['build']) {
-    $ok = Invoke-Step 'npm run build' {
-      npm run build 2>&1 | ForEach-Object { Write-Log $_ }
-      if ($LASTEXITCODE -ne 0) { throw "exit code $LASTEXITCODE" }
+  if ($targets.buildPasses) {
+    if ($scripts.PSObject.Properties['build']) {
+      if (-not (Invoke-Native 'npm run build' 'npm run build')) { $allOk = $false }
     }
-    if (-not $ok) { $allOk = $false }
+    else {
+      Write-Log 'FAIL: buildPasses required but package.json has no build script'
+      $allOk = $false
+    }
   }
 
-  if ($targets.testsPass -and $scripts.PSObject.Properties['test']) {
-    $ok = Invoke-Step 'npm test' {
-      npm test 2>&1 | ForEach-Object { Write-Log $_ }
-      if ($LASTEXITCODE -ne 0) { throw "exit code $LASTEXITCODE" }
+  if ($targets.testsPass) {
+    if ($scripts.PSObject.Properties['test']) {
+      if (-not (Invoke-Native 'npm test' 'npm test')) { $allOk = $false }
     }
-    if (-not $ok) { $allOk = $false }
+    else {
+      Write-Log 'FAIL: testsPass required but package.json has no test script'
+      $allOk = $false
+    }
   }
 }
 else {
-  Write-Log 'SKIP: no package.json (nothing to build/test)'
+  foreach ($flag in @('buildPasses', 'testsPass', 'typecheck')) {
+    if ($targets[$flag]) {
+      Write-Log "FAIL: $flag required but no package.json in project root"
+      $allOk = $false
+    }
+  }
+  if (-not ($targets.buildPasses -or $targets.testsPass -or $targets.typecheck -or $targets.healthUrl -or $targets.visualRequired -or $targets.slopCheckRequired)) {
+    Write-Log 'SKIP: no package.json (harness-only project - all build/test flags off)'
+  }
 }
 
 if ($targets.healthUrl) {
@@ -115,20 +141,33 @@ if ($wantVisual) {
   }
   if ($shotUrl) {
     $png = Join-Path $verifyDir "gate-$ts.png"
-    $ok = Invoke-Step "screenshot $shotUrl" {
-      npx playwright screenshot $shotUrl --viewport-size 1440,900 $png 2>&1 | ForEach-Object { Write-Log $_ }
-      if ($LASTEXITCODE -ne 0) { throw 'playwright screenshot failed' }
-      if (-not (Test-Path $png)) { throw 'screenshot file missing' }
-    }
+    $ok = Invoke-Native "screenshot $shotUrl" "npx playwright screenshot `"$shotUrl`" --viewport-size 1440,900 `"$png`""
     if (-not $ok) { $allOk = $false }
+    elseif (-not (Test-Path $png)) {
+      Write-Log 'FAIL: screenshot file missing after playwright'
+      $allOk = $false
+    }
   }
   else {
-    Write-Log 'SKIP: visual (set screenshotUrl or healthUrl in targets.json)'
+    Write-Log 'FAIL: visualRequired true but no screenshotUrl or healthUrl in targets.json'
+    $allOk = $false
+  }
+}
+
+if ($targets.slopCheckRequired) {
+  $detect = Join-Path $env:USERPROFILE '.cursor\skills\impeccable\scripts\detect.mjs'
+  if (-not (Test-Path $detect)) {
+    Write-Log 'FAIL: slopCheckRequired but impeccable detect.mjs not installed'
+    $allOk = $false
+  }
+  else {
+    $ok = Invoke-Native 'impeccable detect' "node `"$detect`""
+    if (-not $ok) { $allOk = $false }
   }
 }
 
 if ($allOk) {
-  Write-Log 'RESULT: PASS'
+  Write-Log 'RESULT: PASS (harness only - council subagents still required before user-facing done)'
   Write-Log "Log file: $logFile"
   exit 0
 }

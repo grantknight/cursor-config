@@ -1,0 +1,4 @@
+commit	audit_findings_resolved	status	notes
+pass1	12	KEEP	harness fail-closed, slop detect, overnight fixes, install.ps1 sync
+pass2	0	KEEP	council re-audit: no definite-benefit gaps remain
+pass3	0	KEEP	final sign-off - stop

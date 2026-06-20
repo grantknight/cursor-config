@@ -6,7 +6,7 @@ alwaysApply: true
 # Design and code quality
 
 **UI / frontend work:**
-- Read `/docs/DESIGN_SYSTEM.md` in the project before building UI (create if missing for new UI)
+- Read `/docs/DESIGN_SYSTEM.md` or project-root `DESIGN.md` before building UI (Impeccable uses `DESIGN.md`)
 - Invoke **Impeccable** skill for design, polish, audit, live browser iteration
 - No default blue buttons, grey cards, system font stacks, or generic AI layout
 

@@ -29,22 +29,27 @@ function findVerifyScript(startDir) {
   return null;
 }
 
+function blocked(msg) {
+  process.stdout.write(JSON.stringify({ followup_message: msg }));
+}
+
 async function main() {
   let input = {};
   try {
     const raw = await readStdin();
     if (raw.trim()) input = JSON.parse(raw);
-  } catch {
-    process.stdout.write('{}');
+  } catch (e) {
+    blocked(
+      `Verification gate: stop hook could not parse input (${e.message}). Do not claim done — report BLOCKED and re-run verify-all.ps1.`,
+    );
     return;
   }
 
   const loopCount = input.loop_count ?? input.loopCount ?? 0;
   if (loopCount >= MAX_LOOPS) {
-    process.stdout.write(JSON.stringify({
-      followup_message:
-        `Verification gate: max ${MAX_LOOPS} stop-hook loops reached. Report BLOCKED to the user with the last verify-all log. Do not claim success.`,
-    }));
+    blocked(
+      `Verification gate: max ${MAX_LOOPS} stop-hook loops reached. Report BLOCKED to the user with the last verify-all log. Do not claim success.`,
+    );
     return;
   }
 
@@ -60,7 +65,7 @@ async function main() {
   const result = spawnSync(
     'powershell.exe',
     ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', found.script],
-    { cwd: found.root, encoding: 'utf8', timeout: 280000, windowsHide: true }
+    { cwd: found.root, encoding: 'utf8', timeout: 280000, windowsHide: true },
   );
 
   if (result.status === 0) {
@@ -71,10 +76,13 @@ async function main() {
   const output = `${result.stdout || ''}\n${result.stderr || ''}`.trim();
   const tail = output.length > 4000 ? output.slice(-4000) : output;
 
-  process.stdout.write(JSON.stringify({
-    followup_message:
-      `scripts/verify-all.ps1 FAILED (exit ${result.status ?? 'unknown'}). Fix all failures. Do NOT tell the user the task is done until verify-all exits 0 and council subagents PASS.\n\n${tail}`,
-  }));
+  blocked(
+    `scripts/verify-all.ps1 FAILED (exit ${result.status ?? 'unknown'}). Fix all failures. Do NOT tell the user the task is done until verify-all exits 0 and council subagents (code-verifier, visual-verifier, slop-auditor) report PASS.\n\n${tail}`,
+  );
 }
 
-main().catch(() => process.stdout.write('{}'));
+main().catch((e) => {
+  blocked(
+    `Verification gate: stop hook error (${e.message}). Report BLOCKED; do not claim success.`,
+  );
+});

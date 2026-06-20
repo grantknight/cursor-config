@@ -15,30 +15,50 @@ if (-not (Test-Path $notify)) {
   $notify = Join-Path (Split-Path $PSScriptRoot -Parent) 'scripts\telegram-notify.ps1'
 }
 
-if (-not (Test-Path $program)) {
-  if (Test-Path $notify) {
-    & $notify -Message "Autoresearch BLOCKED: missing data/autoresearch/program.md in $RepoRoot" -Level blocked
+function Send-Tg([string]$Msg, [string]$Level) {
+  if (-not (Test-Path $notify)) {
+    throw "Telegram notify script missing: $notify"
   }
+  & $notify -Message $Msg -Level $Level
+}
+
+function Get-StopAt([int]$Hour) {
+  $now = Get-Date
+  $stop = Get-Date -Hour $Hour -Minute 0 -Second 0
+  if ($stop -le $now) { $stop = $stop.AddDays(1) }
+  return $stop
+}
+
+try {
+  Send-Tg "Autoresearch preflight OK ($RepoRoot)" 'progress'
+}
+catch {
+  Write-Error "Autoresearch BLOCKED: Telegram preflight failed — $($_.Exception.Message)"
+}
+
+if (-not (Test-Path $program)) {
+  Send-Tg "Autoresearch BLOCKED: missing data/autoresearch/program.md in $RepoRoot" 'blocked'
   throw 'Missing data/autoresearch/program.md'
 }
 
-function Send-Tg([string]$Msg, [string]$Level) {
-  if (Test-Path $notify) { & $notify -Message $Msg -Level $Level }
-}
-
-function Past-UntilHour([int]$Hour) {
-  return (Get-Date).Hour -ge $Hour
-}
-
+$stopAt = Get-StopAt $UntilHour
 $exp = 0
 while ($exp -lt $MaxExperiments) {
-  if (Past-UntilHour $UntilHour) {
-    Send-Tg "Autoresearch stopped at $UntilHour`:00 ($RepoRoot)" 'progress'
+  if ((Get-Date) -ge $stopAt) {
+    Send-Tg "Autoresearch stopped at $($stopAt.ToString('yyyy-MM-dd HH:mm')) ($RepoRoot)" 'progress'
     break
   }
 
-  & $check
-  if ($LASTEXITCODE -eq 0) {
+  try {
+    & $check
+    $checkExit = $LASTEXITCODE
+  }
+  catch {
+    Send-Tg "Autoresearch BLOCKED: check failed — $($_.Exception.Message)" 'blocked'
+    exit 2
+  }
+
+  if ($checkExit -eq 0) {
     Send-Tg "Autoresearch SUCCESS — all targets pass ($RepoRoot)" 'success'
     exit 0
   }
@@ -54,7 +74,20 @@ STOP after one experiment. Do not ask questions.
 "@
 
   try {
-    Invoke-Expression "$AgentCmd $prompt"
+    if ($AgentCmd -eq 'cursor-agent') {
+      & cursor-agent -p $prompt --force
+      if ($LASTEXITCODE -ne 0) {
+        Send-Tg "Autoresearch BLOCKED: cursor-agent exit $LASTEXITCODE ($RepoRoot)" 'blocked'
+        exit 2
+      }
+    }
+    else {
+      Invoke-Expression "$AgentCmd `"$($prompt -replace '"','\"')`""
+      if ($LASTEXITCODE -ne 0) {
+        Send-Tg "Autoresearch BLOCKED: agent exit $LASTEXITCODE ($RepoRoot)" 'blocked'
+        exit 2
+      }
+    }
   }
   catch {
     Send-Tg "Autoresearch BLOCKED: agent failed — $($_.Exception.Message)" 'blocked'

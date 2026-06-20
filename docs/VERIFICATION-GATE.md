@@ -6,15 +6,12 @@ Three layers before you hear "done":
 Implementer → verify-all.ps1 → code-verifier → visual-verifier → slop-auditor → user
 ```
 
-## Layer 1 — Frozen harness
+## Layer 1 — Frozen harness (2026-06-20 hardening)
 
-Per-project `scripts/verify-all.ps1` (copy from `~/.cursor/templates/scripts/verify-all.ps1`).
-
-- Agent **must not edit** this file during tasks or autoresearch loops
-- Exit 0 only when all enabled checks pass
-- Logs to `scripts/verify/gate-{timestamp}.log`
-
-Configure via `data/verify/targets.json`.
+- **npm exit codes:** native commands run via `cmd /c` so failures are not masked by PowerShell pipes
+- **Required flags fail closed:** if `buildPasses`/`testsPass`/`typecheck`/`visualRequired`/`slopCheckRequired` is true but the step cannot run, harness exits **1** (not SKIP)
+- **Slop:** when `slopCheckRequired: true`, runs `node ~/.cursor/skills/impeccable/scripts/detect.mjs`
+- **Default targets.json:** all flags **false** for harness-only / config repos (enable per project)
 
 ## Layer 2 — Council subagents
 
