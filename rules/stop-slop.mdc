@@ -1,0 +1,14 @@
+---
+description: Always invoke stop-slop skill on every agent turn before user-facing prose
+alwaysApply: true
+---
+
+# Stop Slop — always on
+
+On **every** agent turn, before sending any user-facing text:
+
+1. Read and apply `~/.cursor/skills/stop-slop/SKILL.md`.
+2. Run its Quick Checks on your draft; revise if any fail.
+3. For longer prose, also read `references/phrases.md` and `references/structures.md`.
+
+This applies to all responses — answers, docs, comments, commit messages, PR text — not only explicit writing or editing tasks.

@@ -1,0 +1,40 @@
+---
+description: Never report DONE without Council verification PASS markers
+alwaysApply: true
+---
+
+# Verification gate (Council)
+
+**Forbidden:** telling the user a task is complete based on build output alone, self-assessment, or API status codes.
+
+## Before DONE (interactive tasks)
+
+1. Run `scripts/verify-all.ps1` in the project (if present) — **do not edit that file**
+2. Delegate readonly council subagents in order:
+   - **code-verifier** → must emit `CODE_VERIFY: PASS` or `CODE_VERIFY: FAIL`
+   - **visual-verifier** → `VISUAL_VERIFY: PASS|FAIL|SKIP`
+   - **slop-auditor** → `SLOP_VERIFY: PASS|FAIL|SKIP` (UI tasks only; SKIP for backend-only)
+
+3. Report DONE to the user only when:
+   - `CODE_VERIFY: PASS`, and
+   - `VISUAL_VERIFY: PASS` or `SKIP`, and
+   - `SLOP_VERIFY: PASS` or `SKIP`
+
+4. On any FAIL: fix and re-run council — no user ping mid-loop unless blocked on secrets
+
+## Frozen harness
+
+These files are **read-only for the implementer agent:**
+- `scripts/verify-all.ps1`
+- `scripts/autoresearch-check-targets.ps1`
+- Files listed under frozen surface in `data/autoresearch/program.md`
+
+## Skip rules
+
+| Task type | Visual | Slop |
+|-----------|--------|------|
+| Backend-only API/script | SKIP | SKIP |
+| Config/docs only | SKIP | SKIP |
+| UI change | required | required |
+
+See `~/.cursor/docs/VERIFICATION-GATE.md` for full flow.

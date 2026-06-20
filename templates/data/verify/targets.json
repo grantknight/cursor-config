@@ -1,0 +1,9 @@
+{
+  "buildPasses": true,
+  "testsPass": true,
+  "typecheck": true,
+  "healthUrl": null,
+  "visualRequired": true,
+  "slopCheckRequired": true,
+  "screenshotUrl": null
+}

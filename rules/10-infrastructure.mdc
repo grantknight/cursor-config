@@ -1,0 +1,18 @@
+---
+description: Blast-radius checks before GitHub, Railway, Cloudflare, or shared DNS changes
+alwaysApply: true
+---
+
+# Infrastructure safety
+
+Before changing DNS, Railway services/vars, GitHub repo settings, or SSL:
+
+1. State what changes and on which service
+2. List projects that depend on it
+3. Map blast radius — what breaks if wrong
+4. If other projects affected: say what you will protect; stage or isolate the change
+5. Verify after change; roll back immediately if something else breaks
+
+**DNS:** `dragonflight.co.za` authoritative = Cloudflare (not KonsoleH). KonsoleH = registrar/email only.
+
+**Git:** never force-push main/master without explicit user request.

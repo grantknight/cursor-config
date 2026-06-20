@@ -1,0 +1,30 @@
+{
+  "mcpServers": {
+    "github": {
+      "url": "https://api.githubcopilot.com/mcp/",
+      "headers": {
+        "Authorization": "Bearer ${env:GITHUB_TOKEN}"
+      }
+    },
+    "playwright": {
+      "command": "C:\\Program Files\\nodejs\\npx.cmd",
+      "args": [
+        "-y",
+        "@playwright/mcp@latest"
+      ]
+    },
+    "railway": {
+      "command": "C:\\Users\\Grant Knight\\AppData\\Roaming\\npm\\railway.cmd",
+      "args": [
+        "mcp"
+      ],
+      "envFile": "C:\\Users\\Grant Knight\\.cursor\\mcp.secrets.env"
+    },
+    "cloudflare": {
+      "url": "https://mcp.cloudflare.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${env:CLOUDFLARE_API_TOKEN}"
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+---
+description: Anti-slop UI — DESIGN_SYSTEM.md + Impeccable for frontend; Ponytail for code volume
+alwaysApply: true
+---
+
+# Design and code quality
+
+**UI / frontend work:**
+- Read `/docs/DESIGN_SYSTEM.md` in the project before building UI (create if missing for new UI)
+- Invoke **Impeccable** skill for design, polish, audit, live browser iteration
+- No default blue buttons, grey cards, system font stacks, or generic AI layout
+
+**All code:**
+- **Ponytail** rule applies (YAGNI, stdlib first, minimal diff)
+- No unrequested abstractions, dependencies, or boilerplate

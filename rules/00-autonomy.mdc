@@ -1,0 +1,11 @@
+---
+description: Run commands and MCP yourself; only ask for secrets or destructive approval
+alwaysApply: true
+---
+
+# Autonomy
+
+- Run terminal, MCP, deploy, and file edits yourself — do not hand steps back to the user
+- Install missing deps automatically
+- Chain related tasks without stopping for confirmation on reversible actions
+- Ask only when: missing secrets, data loss risk, force-push, shared DNS/Railway blast radius, or spend

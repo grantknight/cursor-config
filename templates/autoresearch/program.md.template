@@ -1,0 +1,32 @@
+# Grant autoresearch profile — copy to data/autoresearch/program.md per repo
+
+## Goal
+<!-- one sentence -->
+
+## Loop
+1. Read results.tsv + targets.json
+2. ONE change in editable surface only
+3. Run frozen harness (scripts/verify-all.ps1 — do not edit)
+4. Improved → git commit KEEP; else git reset DISCARD
+5. Repeat until targets pass OR 07:00 OR max experiments
+
+## Editable surface
+<!-- e.g. src/**, frontend/src/** -->
+
+## Frozen surface (never edit during loop)
+- scripts/verify-all.ps1
+- scripts/autoresearch-check-targets.ps1
+- data/autoresearch/targets.json (limits only — agent may not loosen)
+
+## Harness commands
+<!-- project-specific, e.g. npm run build && npm test -->
+
+## Infrastructure
+- Deploy: Railway MCP / railway up
+- DNS: Cloudflare for dragonflight.co.za (not KonsoleH)
+- Notify: telegram-notify.ps1 on SUCCESS/BLOCKED
+
+## Stop conditions
+- All targets.json metrics within budget
+- Local time 07:00
+- Max 50 experiments
