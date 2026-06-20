@@ -9,11 +9,27 @@ const path = require('path');
 
 const MAX_LOOPS = 10;
 
+function stripBom(text) {
+  return String(text || '').replace(/^\uFEFF/, '');
+}
+
+function parseHookInput(raw) {
+  const trimmed = stripBom(raw).trim();
+  if (!trimmed) return {};
+  return JSON.parse(trimmed);
+}
+
 function readStdin() {
   return new Promise((resolve) => {
     const chunks = [];
     process.stdin.on('data', (c) => chunks.push(c));
-    process.stdin.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
+    process.stdin.on('end', () => {
+      let buf = Buffer.concat(chunks);
+      if (buf.length >= 3 && buf[0] === 0xef && buf[1] === 0xbb && buf[2] === 0xbf) {
+        buf = buf.subarray(3);
+      }
+      resolve(buf.toString('utf8'));
+    });
   });
 }
 
@@ -37,7 +53,7 @@ async function main() {
   let input = {};
   try {
     const raw = await readStdin();
-    if (raw.trim()) input = JSON.parse(raw);
+    if (stripBom(raw).trim()) input = parseHookInput(raw);
   } catch (e) {
     blocked(
       `Verification gate: stop hook could not parse input (${e.message}). Do not claim done — report BLOCKED and re-run verify-all.ps1.`,
