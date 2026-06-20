@@ -2,6 +2,16 @@
 
 Default profile for Grant Knight projects. Per-repo overrides live in `data/autoresearch/program.md`.
 
+## Autoresearch = overnight (one thing)
+
+**Autoresearch and overnight are the same loop.** Single entry point:
+
+```powershell
+.\scripts\autoresearch.ps1
+```
+
+That script loads secrets and runs `autoresearch-overnight.ps1`. There is no separate "overnight mode" or "examiner mode" to turn on — examiner council is **always** part of autoresearch unless `examinerRequired: false` in `targets.json` (advanced opt-out only).
+
 ## Loop (Karpathy ratchet)
 
 1. Read `results.tsv` + `targets.json`
@@ -17,15 +27,15 @@ Default profile for Grant Knight projects. Per-repo overrides live in `data/auto
 - Live URL health check if deploy task (Railway endpoint)
 - Telegram notify on SUCCESS / BLOCKED via `telegram-notify.ps1` (Phase 6)
 
-## Examiner mode (before SUCCESS — overnight only)
+## Examiner (built into autoresearch — step before SUCCESS)
 
-When `examinerRequired: true` in `targets.json`:
+After harness + metrics PASS, autoresearch always runs:
 
 1. `autoresearch-examiner-gate.ps1` — plan / answer / grade phases
 2. `autoresearch-examiner-check.ps1` — frozen mechanical check
 3. All three tiers (top, mid, low) must PASS; max retries in `examinerMaxRetries`
 
-See `docs/EXAMINER-MODE.md`. Frozen examiner scripts must not be edited during loops.
+No separate activation. See `docs/EXAMINER-MODE.md`. Frozen examiner scripts must not be edited during loops.
 
 ## Infrastructure defaults
 
@@ -40,7 +50,7 @@ See `docs/EXAMINER-MODE.md`. Frozen examiner scripts must not be edited during l
 
 ## Headless driver
 
-- `scripts/autoresearch-overnight.ps1` + `cursor-agent` CLI
+- `scripts/autoresearch.ps1` → `autoresearch-overnight.ps1` + `cursor-agent` CLI (includes examiner)
 - Secrets: Windows User env vars + optional `~/.cursor-config-secrets.ps1` for Telegram
 
 ## Repo deliverables (generate on first setup)
@@ -63,9 +73,11 @@ scripts/
 - `scripts/autoresearch-examiner-check.ps1`
 - Harness / benchmark files listed in `program.md`
 
-## Interactive vs overnight
+## Interactive chat vs autoresearch script
 
-| Mode | Behavior |
-|------|----------|
-| Interactive | One confirmation after goal parse (Muminur default) |
-| Overnight | Skip questions; read this profile + repo AGENTS.md |
+| When you say… | What runs |
+|---------------|-----------|
+| "autoresearch", "run overnight", "keep improving overnight" | `.\scripts\autoresearch.ps1` — full loop + examiner + Telegram |
+| Interactive `/autoresearch` in chat (no script) | Agent follows skill loop in-session; for Grant repos with `data/autoresearch/`, prefer launching `autoresearch.ps1` instead |
+
+Autoresearch script mode skips AskQuestion; reads this profile + repo `AGENTS.md`.

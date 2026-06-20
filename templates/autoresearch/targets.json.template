@@ -1,5 +1,7 @@
 {
   "exampleMetricMs": 500,
   "examinerRequired": true,
-  "examinerMaxRetries": 3
+  "examinerMaxRetries": 3,
+  "telegramProjectKey": "cursor-template",
+  "telegramTopicId": null
 }

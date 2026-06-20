@@ -1,6 +1,6 @@
 # cursor-config
 
-Grant Knight Cursor user-level setup: MCP templates, rules, council verifiers, verification gate, overnight autoresearch + Telegram.
+Grant Knight Cursor user-level setup: MCP templates, rules, council verifiers, verification gate, **autoresearch** (overnight loop + examiner + Telegram).
 
 ## Install (one-liner)
 
@@ -22,7 +22,7 @@ Then set secrets (`scripts\secrets.template.ps1`), run `scripts\sync-mcp-secrets
 | `skills/` | Ponytail, Impeccable, autoresearch, task-completion, etc. |
 | `scripts/verify-all.ps1` | Frozen per-project harness template |
 | `scripts/telegram-notify.ps1` | Knight HQ Telegram alerts |
-| `scripts/autoresearch*.ps1` | Overnight loop drivers |
+| `scripts/autoresearch*.ps1` | Autoresearch loop (`autoresearch.ps1` = overnight + examiner) |
 | `docs/` | MCP, DNS, verification gate, overnight |
 
 ## Bootstrap a project

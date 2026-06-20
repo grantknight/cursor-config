@@ -28,11 +28,11 @@
 
 ## Stop conditions
 - All targets.json metrics within budget
-- Examiner council PASS (all three tiers: top / mid / low) when examinerRequired is true
+- Examiner council PASS (all three tiers: top / mid / low) — always required for autoresearch
 - Local time 07:00
 - Max 50 experiments
 
-## Examiner mode
+## Examiner (built in — examiners read this section)
 Goal: <!-- one sentence — examiners derive tier probes from this -->
 
 Examiner dimensions: <!-- e.g. UI research: top-star repo, mid-tier alternative, niche edge case -->

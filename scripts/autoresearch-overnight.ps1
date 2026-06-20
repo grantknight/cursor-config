@@ -20,7 +20,8 @@ if (-not (Test-Path $notify)) {
   $notify = Join-Path (Split-Path $PSScriptRoot -Parent) 'scripts\telegram-notify.ps1'
 }
 
-$examinerRequired = $false
+# Examiner is built into autoresearch — on by default; set examinerRequired: false to opt out only.
+$examinerRequired = $true
 $examinerMaxRetries = 3
 $examinerRetries = 0
 if (Test-Path $targetsPath) {
@@ -33,7 +34,21 @@ function Send-Tg([string]$Msg, [string]$Level) {
   if (-not (Test-Path $notify)) {
     throw "Telegram notify script missing: $notify"
   }
-  & $notify -Message $Msg -Level $Level
+  $topicArg = @{}
+  if ($script:TelegramTopicId) { $topicArg.TopicId = $script:TelegramTopicId }
+  & $notify -Message $Msg -Level $Level @topicArg
+}
+
+$resolveTopic = Join-Path $env:USERPROFILE '.cursor\scripts\resolve-telegram-topic.ps1'
+if (-not (Test-Path $resolveTopic)) {
+  $resolveTopic = Join-Path (Split-Path $PSScriptRoot -Parent) 'scripts\resolve-telegram-topic.ps1'
+}
+$script:TelegramTopicId = $null
+if (Test-Path $resolveTopic) {
+  try {
+    $script:TelegramTopicId = & $resolveTopic -RepoRoot $RepoRoot
+  }
+  catch { }
 }
 
 function Get-StopAt([int]$Hour) {

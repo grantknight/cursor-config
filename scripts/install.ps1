@@ -15,6 +15,7 @@ Copy-Item "$repoRoot\hooks\stop-verify.js" "$cursorHome\hooks\stop-verify.js" -F
 
 $scriptNames = @(
   'telegram-notify.ps1',
+  'resolve-telegram-topic.ps1',
   'sync-mcp-secrets.ps1',
   'rotate-railway-token.ps1',
   'autoresearch.ps1',

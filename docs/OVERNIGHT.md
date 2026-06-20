@@ -1,4 +1,12 @@
-# Overnight autoresearch + Telegram
+# Autoresearch (same as overnight) + Telegram
+
+**Autoresearch and overnight are one loop.** Always start with:
+
+```powershell
+.\scripts\autoresearch.ps1
+```
+
+That runs the overnight driver with examiner council built in. No separate examiner activation.
 
 ## Per-project setup
 
@@ -20,7 +28,7 @@ Edit `program.md` and `targets.json` for the repo.
 .\scripts\autoresearch.ps1
 ```
 
-Or from cursor-config scripts copied into project:
+Or directly (same loop):
 
 ```powershell
 .\scripts\autoresearch-overnight.ps1 -RepoRoot .
@@ -30,12 +38,14 @@ Or from cursor-config scripts copied into project:
 
 1. Headless agent runs ONE experiment (`cursor-agent` or Cursor Automation)
 2. `autoresearch-check-targets.ps1` runs frozen `verify-all.ps1`
-3. If `examinerRequired: true`, `autoresearch-examiner-gate.ps1` runs (top/mid/low council)
+3. `autoresearch-examiner-gate.ps1` runs (top/mid/low council) — **always on by default**
 4. All pass → Telegram SUCCESS → stop
 5. Examiner FAIL → agent fixes gaps, loop continues (max `examinerMaxRetries`)
 6. Harness fail → next experiment (no user ping)
 7. Harness broken / missing secrets → Telegram BLOCKED
 8. Stop at 07:00 local or max experiments
+
+Opt out of examiner only with `"examinerRequired": false` in `targets.json` (not recommended).
 
 ## Telegram secrets
 

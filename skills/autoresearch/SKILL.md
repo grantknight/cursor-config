@@ -12,7 +12,9 @@ Inspired by [Karpathy's autoresearch](https://github.com/karpathy/autoresearch).
 
 ## Grant profile (default for this user)
 
-When working for Grant Knight or on repos under `Desktop/Projects/`, load `references/grant-profile.md` first. It defines overnight autonomy, Railway/Cloudflare defaults, frozen harness rules, and repo deliverables. Per-repo overrides go in `data/autoresearch/program.md`.
+When working for Grant Knight or on repos under `Desktop/Projects/`, load `references/grant-profile.md` first.
+
+**Autoresearch = overnight = one loop.** Entry: `.\scripts\autoresearch.ps1`. Examiner council (top/mid/low tiers) is **built in** — not a separate step to activate. When the user says "autoresearch" or "run overnight", launch or continue that script loop (or bootstrap `data/autoresearch/` first if missing). Per-repo overrides go in `data/autoresearch/program.md`.
 
 ## Subcommands
 
@@ -166,7 +168,7 @@ After the wizard completes, the user gets a ready-to-paste `/autoresearch` invoc
 - User invokes `/autoresearch:security` → run the security audit
 - User says "help me set up autoresearch", "plan an autoresearch run" → run the planning wizard
 - User says "security audit", "threat model", "OWASP", "STRIDE", "find vulnerabilities", "red-team" → run the security audit
-- User says "work autonomously", "iterate until done", "keep improving", "run overnight" → run the loop
+- User says "autoresearch", "run autoresearch", "work autonomously", "iterate until done", "keep improving", "run overnight" → **Grant repos:** run `.\scripts\autoresearch.ps1` (includes examiner); bootstrap `data/autoresearch/` if needed. Other repos: run the in-chat loop below.
 - Any task requiring repeated iteration cycles with measurable outcomes → run the loop
 
 ## Optional: Controlled Loop Count

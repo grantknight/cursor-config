@@ -1,6 +1,6 @@
-# Examiner Mode (autoresearch / overnight)
+# Examiner Mode (built into autoresearch)
 
-Layer 2.5 — adversarial breadth check before Telegram SUCCESS.
+Layer 2.5 — adversarial breadth check before Telegram SUCCESS. **Part of every autoresearch run** (`autoresearch.ps1` = overnight loop). No separate activation.
 
 ## Why
 
@@ -42,6 +42,8 @@ Templates: `~/.cursor/templates/autoresearch/examiner-*.template.json`
 
 ## Config (`targets.json`)
 
+Examiner is **on by default**. Optional knobs:
+
 ```json
 {
   "examinerRequired": true,
@@ -49,7 +51,7 @@ Templates: `~/.cursor/templates/autoresearch/examiner-*.template.json`
 }
 ```
 
-Set `examinerRequired: false` to skip (harness-only projects).
+Set `"examinerRequired": false` only for harness-only smoke tests (not normal autoresearch).
 
 ## program.md section
 
