@@ -30,10 +30,12 @@ Or from cursor-config scripts copied into project:
 
 1. Headless agent runs ONE experiment (`cursor-agent` or Cursor Automation)
 2. `autoresearch-check-targets.ps1` runs frozen `verify-all.ps1`
-3. All pass → Telegram SUCCESS → stop
-4. Fail → git reset → next experiment (no user ping)
-5. Harness broken / missing secrets → Telegram BLOCKED
-6. Stop at 07:00 local or max experiments
+3. If `examinerRequired: true`, `autoresearch-examiner-gate.ps1` runs (top/mid/low council)
+4. All pass → Telegram SUCCESS → stop
+5. Examiner FAIL → agent fixes gaps, loop continues (max `examinerMaxRetries`)
+6. Harness fail → next experiment (no user ping)
+7. Harness broken / missing secrets → Telegram BLOCKED
+8. Stop at 07:00 local or max experiments
 
 ## Telegram secrets
 

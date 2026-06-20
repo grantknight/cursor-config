@@ -1,0 +1,21 @@
+{
+  "goal": "",
+  "generatedAt": "",
+  "tiers": {
+    "top": {
+      "question": "",
+      "evidenceRequired": "",
+      "whatAgentsUsuallySkip": ""
+    },
+    "mid": {
+      "question": "",
+      "evidenceRequired": "",
+      "whatAgentsUsuallySkip": ""
+    },
+    "low": {
+      "question": "",
+      "evidenceRequired": "",
+      "whatAgentsUsuallySkip": ""
+    }
+  }
+}

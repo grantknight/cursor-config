@@ -1,3 +1,5 @@
 {
-  "exampleMetricMs": 500
+  "exampleMetricMs": 500,
+  "examinerRequired": true,
+  "examinerMaxRetries": 3
 }

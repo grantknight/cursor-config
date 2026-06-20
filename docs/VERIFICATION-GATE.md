@@ -3,8 +3,19 @@
 Three layers before you hear "done":
 
 ```
-Implementer → verify-all.ps1 → code-verifier → visual-verifier → slop-auditor → user
+Implementer → verify-all.ps1 → metrics PASS → examiner council → code-verifier → visual-verifier → slop-auditor → user
 ```
+
+## Layer 2.5 — Examiner Mode (overnight only)
+
+When `examinerRequired: true` in `data/autoresearch/targets.json`:
+
+1. `autoresearch-examiner-gate.ps1` runs after harness + metrics PASS
+2. Three tier examiners (top / mid / low) plan questions, grade evidence
+3. `autoresearch-examiner-check.ps1` prints `EXAMINER_VERIFY: PASS|FAIL`
+4. Telegram SUCCESS only after `EXAMINER_VERIFY: PASS`
+
+See [EXAMINER-MODE.md](EXAMINER-MODE.md).
 
 ## Layer 1 — Frozen harness (2026-06-20 hardening)
 

@@ -9,10 +9,24 @@ $ErrorActionPreference = 'Stop'
 Set-Location $RepoRoot
 
 $check = Join-Path $RepoRoot 'scripts\autoresearch-check-targets.ps1'
+$examinerGate = Join-Path $RepoRoot 'scripts\autoresearch-examiner-gate.ps1'
+if (-not (Test-Path $examinerGate)) {
+  $examinerGate = Join-Path $PSScriptRoot 'autoresearch-examiner-gate.ps1'
+}
 $program = Join-Path $RepoRoot 'data\autoresearch\program.md'
+$targetsPath = Join-Path $RepoRoot 'data\autoresearch\targets.json'
 $notify = Join-Path $env:USERPROFILE '.cursor\scripts\telegram-notify.ps1'
 if (-not (Test-Path $notify)) {
   $notify = Join-Path (Split-Path $PSScriptRoot -Parent) 'scripts\telegram-notify.ps1'
+}
+
+$examinerRequired = $false
+$examinerMaxRetries = 3
+$examinerRetries = 0
+if (Test-Path $targetsPath) {
+  $targets = Get-Content $targetsPath -Raw | ConvertFrom-Json
+  if ($null -ne $targets.examinerRequired) { $examinerRequired = [bool]$targets.examinerRequired }
+  if ($null -ne $targets.examinerMaxRetries) { $examinerMaxRetries = [int]$targets.examinerMaxRetries }
 }
 
 function Send-Tg([string]$Msg, [string]$Level) {
@@ -33,7 +47,7 @@ try {
   Send-Tg "Autoresearch preflight OK ($RepoRoot)" 'progress'
 }
 catch {
-  Write-Error "Autoresearch BLOCKED: Telegram preflight failed — $($_.Exception.Message)"
+  Write-Error "Autoresearch BLOCKED: Telegram preflight failed - $($_.Exception.Message)"
 }
 
 if (-not (Test-Path $program)) {
@@ -54,12 +68,53 @@ while ($exp -lt $MaxExperiments) {
     $checkExit = $LASTEXITCODE
   }
   catch {
-    Send-Tg "Autoresearch BLOCKED: check failed — $($_.Exception.Message)" 'blocked'
+    Send-Tg "Autoresearch BLOCKED: check failed - $($_.Exception.Message)" 'blocked'
     exit 2
   }
 
   if ($checkExit -eq 0) {
-    Send-Tg "Autoresearch SUCCESS — all targets pass ($RepoRoot)" 'success'
+    if ($examinerRequired) {
+      if ($examinerRetries -ge $examinerMaxRetries) {
+        Send-Tg "Examiner BLOCKED: max retries ($examinerMaxRetries) ($RepoRoot)" 'blocked'
+        exit 2
+      }
+      try {
+        & $examinerGate -RepoRoot $RepoRoot -AgentCmd $AgentCmd
+        $examExit = $LASTEXITCODE
+      }
+      catch {
+        Send-Tg "Examiner BLOCKED: gate failed - $($_.Exception.Message)" 'blocked'
+        exit 2
+      }
+      if ($examExit -ne 0) {
+        $examinerRetries++
+        $prompt = @"
+Examiner council FAILED. Read data/autoresearch/examiner-report.json and examiner-questions.json.
+Fix gaps for failed tiers with REAL evidence. Run ONE experiment:
+1. Address each failed tier (top/mid/low) with proof
+2. Update examiner-answers.json with evidence
+3. Run harness from program.md
+4. Append results.tsv row, KEEP or DISCARD
+STOP after one experiment.
+"@
+        try {
+          if ($AgentCmd -eq 'cursor-agent') {
+            & cursor-agent -p $prompt --force
+            if ($LASTEXITCODE -ne 0) {
+              Send-Tg "Autoresearch BLOCKED: cursor-agent exit $LASTEXITCODE ($RepoRoot)" 'blocked'
+              exit 2
+            }
+          }
+        }
+        catch {
+          Send-Tg "Autoresearch BLOCKED: agent failed - $($_.Exception.Message)" 'blocked'
+          exit 2
+        }
+        $exp++
+        continue
+      }
+    }
+    Send-Tg "Autoresearch SUCCESS - all targets + examiner pass ($RepoRoot)" 'success'
     exit 0
   }
 
@@ -90,7 +145,7 @@ STOP after one experiment. Do not ask questions.
     }
   }
   catch {
-    Send-Tg "Autoresearch BLOCKED: agent failed — $($_.Exception.Message)" 'blocked'
+    Send-Tg "Autoresearch BLOCKED: agent failed - $($_.Exception.Message)" 'blocked'
     exit 2
   }
 

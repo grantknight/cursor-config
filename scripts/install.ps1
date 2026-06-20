@@ -20,6 +20,8 @@ $scriptNames = @(
   'autoresearch.ps1',
   'autoresearch-overnight.ps1',
   'autoresearch-check-targets.ps1',
+  'autoresearch-examiner-gate.ps1',
+  'autoresearch-examiner-check.ps1',
   'verify-all.ps1'
 )
 foreach ($name in $scriptNames) {

@@ -28,5 +28,11 @@
 
 ## Stop conditions
 - All targets.json metrics within budget
+- Examiner council PASS (all three tiers: top / mid / low) when examinerRequired is true
 - Local time 07:00
 - Max 50 experiments
+
+## Examiner mode
+Goal: <!-- one sentence — examiners derive tier probes from this -->
+
+Examiner dimensions: <!-- e.g. UI research: top-star repo, mid-tier alternative, niche edge case -->

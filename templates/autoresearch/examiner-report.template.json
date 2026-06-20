@@ -1,0 +1,8 @@
+{
+  "gradedAt": "",
+  "tiers": {
+    "top": { "pass": false, "reason": "" },
+    "mid": { "pass": false, "reason": "" },
+    "low": { "pass": false, "reason": "" }
+  }
+}

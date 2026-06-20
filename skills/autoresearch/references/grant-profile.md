@@ -17,6 +17,16 @@ Default profile for Grant Knight projects. Per-repo overrides live in `data/auto
 - Live URL health check if deploy task (Railway endpoint)
 - Telegram notify on SUCCESS / BLOCKED via `telegram-notify.ps1` (Phase 6)
 
+## Examiner mode (before SUCCESS — overnight only)
+
+When `examinerRequired: true` in `targets.json`:
+
+1. `autoresearch-examiner-gate.ps1` — plan / answer / grade phases
+2. `autoresearch-examiner-check.ps1` — frozen mechanical check
+3. All three tiers (top, mid, low) must PASS; max retries in `examinerMaxRetries`
+
+See `docs/EXAMINER-MODE.md`. Frozen examiner scripts must not be edited during loops.
+
 ## Infrastructure defaults
 
 - **Deploy:** Railway MCP or `railway up` — agent runs it
@@ -50,6 +60,7 @@ scripts/
 
 - `scripts/verify-all.ps1` (Phase 4)
 - `scripts/autoresearch-check-targets.ps1`
+- `scripts/autoresearch-examiner-check.ps1`
 - Harness / benchmark files listed in `program.md`
 
 ## Interactive vs overnight

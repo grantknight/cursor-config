@@ -1,0 +1,20 @@
+{
+  "answeredAt": "",
+  "tiers": {
+    "top": {
+      "answer": "",
+      "evidence": "",
+      "status": "answered"
+    },
+    "mid": {
+      "answer": "",
+      "evidence": "",
+      "status": "answered"
+    },
+    "low": {
+      "answer": "",
+      "evidence": "",
+      "status": "answered"
+    }
+  }
+}
