@@ -13,4 +13,4 @@
 # Overnight alerts (Telegram — Knight HQ bot):
 #   TELEGRAM_BOT_TOKEN    Same bot as PaperClip/Hermes if you prefer
 #   TELEGRAM_CHAT_ID      e.g. -1004292432894 (Knight HQ group)
-#   TELEGRAM_TOPIC_ID     Optional forum topic for Cursor alerts
+#   TELEGRAM_TOPIC_ID     Knight HQ forum topic for Cursor alerts (508 = "Cursor")

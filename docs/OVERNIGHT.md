@@ -43,7 +43,7 @@ Windows User env vars (or `~/.cursor-config-secrets.ps1`):
 |-----|-------|
 | `TELEGRAM_BOT_TOKEN` | @KnightHQ_bot token |
 | `TELEGRAM_CHAT_ID` | `-1004292432894` (Knight HQ group) |
-| `TELEGRAM_TOPIC_ID` | optional forum topic for Cursor alerts |
+| `TELEGRAM_TOPIC_ID` | `508` — Cursor forum topic (outbound alerts only; Maverick ignores inbound) |
 
 Test:
 
